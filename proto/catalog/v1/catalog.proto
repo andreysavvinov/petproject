@@ -1,0 +1,107 @@
+syntax = "proto3";
+
+package catalog.v1;
+
+option go_package = "github.com/andreysavvinov/petproject/gen/catalog/v1;catalogv1";
+
+service CatalogService {
+  // Albums
+  rpc CreateAlbum(CreateAlbumRequest) returns (Album);
+  rpc GetAlbum(GetAlbumRequest) returns (Album);
+  rpc ListAlbums(ListAlbumsRequest) returns (ListAlbumsResponse);
+  rpc UpdateAlbum(UpdateAlbumRequest) returns (Album);
+  rpc DeleteAlbum(DeleteAlbumRequest) returns (DeleteResponse);
+
+  // Performers
+  rpc CreatePerformer(CreatePerformerRequest) returns (Performer);
+  rpc GetPerformer(GetPerformerRequest) returns (Performer);
+  rpc ListPerformers(ListPerformersRequest) returns (ListPerformersResponse);
+  rpc UpdatePerformer(UpdatePerformerRequest) returns (Performer);
+  rpc DeletePerformer(DeletePerformerRequest) returns (DeleteResponse);
+
+  // Tracks
+  rpc CreateTrack(CreateTrackRequest) returns (Track);
+  rpc GetTrack(GetTrackRequest) returns (Track);
+  rpc ListTracks(ListTracksRequest) returns (ListTracksResponse);
+  rpc UpdateTrack(UpdateTrackRequest) returns (Track);
+  rpc DeleteTrack(DeleteTrackRequest) returns (DeleteResponse);
+}
+
+message Album {
+  string id = 1;
+  string album_name = 2;
+  string release_year = 3;
+  string genre = 4;
+}
+
+message Performer {
+  string id = 1;
+  string performer_name = 2;
+}
+
+message Track {
+  string id = 1;
+  string track_name = 2;
+  string genre = 3;
+  string duration = 4;
+  string albums_id = 5;
+  string performers_id = 6;
+  int64 my_music_id = 7;
+}
+
+message CreateAlbumRequest {
+  string album_name = 1;
+  string release_year = 2;
+  string genre = 3;
+}
+
+message GetAlbumRequest { string id = 1; }
+message ListAlbumsRequest {}
+message ListAlbumsResponse { repeated Album albums = 1; }
+
+message UpdateAlbumRequest {
+  string id = 1;
+  string album_name = 2;
+  string release_year = 3;
+  string genre = 4;
+}
+
+message DeleteAlbumRequest { string id = 1; }
+
+message CreatePerformerRequest { string performer_name = 1; }
+message GetPerformerRequest { string id = 1; }
+message ListPerformersRequest {}
+message ListPerformersResponse { repeated Performer performers = 1; }
+
+message UpdatePerformerRequest {
+  string id = 1;
+  string performer_name = 2;
+}
+
+message DeletePerformerRequest { string id = 1; }
+
+message CreateTrackRequest {
+  string track_name = 1;
+  string genre = 2;
+  string duration = 3;
+  string albums_id = 4;
+  string performers_id = 5;
+  int64 my_music_id = 6;
+}
+
+message GetTrackRequest { string id = 1; }
+message ListTracksRequest {}
+message ListTracksResponse { repeated Track tracks = 1; }
+
+message UpdateTrackRequest {
+  string id = 1;
+  string track_name = 2;
+  string genre = 3;
+  string duration = 4;
+  string albums_id = 5;
+  string performers_id = 6;
+  int64 my_music_id = 7;
+}
+
+message DeleteTrackRequest { string id = 1; }
+message DeleteResponse { bool success = 1; }

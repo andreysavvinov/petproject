@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package subscription.v1;
+
+option go_package = "github.com/andreysavvinov/petproject/gen/subscription/v1;subscriptionv1";
+
+service SubscriptionService {
+  rpc CreateSubscription(CreateSubscriptionRequest) returns (Subscription);
+  rpc GetSubscription(GetSubscriptionRequest) returns (Subscription);
+  rpc ListSubscriptions(ListSubscriptionsRequest) returns (ListSubscriptionsResponse);
+  rpc UpdateSubscription(UpdateSubscriptionRequest) returns (Subscription);
+  rpc DeleteSubscription(DeleteSubscriptionRequest) returns (DeleteResponse);
+}
+
+message Subscription {
+  string users_id = 1;
+  string track_list_id = 2;
+  string start_date = 3;
+  string end_date = 4;
+}
+
+message CreateSubscriptionRequest {
+  string users_id = 1;
+  string track_list_id = 2;
+  string start_date = 3;
+  string end_date = 4;
+}
+
+message GetSubscriptionRequest {
+  string users_id = 1;
+  string track_list_id = 2;
+}
+
+message ListSubscriptionsRequest {}
+message ListSubscriptionsResponse { repeated Subscription subscriptions = 1; }
+
+message UpdateSubscriptionRequest {
+  string users_id = 1;
+  string track_list_id = 2;
+  string start_date = 3;
+  string end_date = 4;
+}
+
+message DeleteSubscriptionRequest {
+  string users_id = 1;
+  string track_list_id = 2;
+}
+
+message DeleteResponse { bool success = 1; }
