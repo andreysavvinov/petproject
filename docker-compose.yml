@@ -1,0 +1,97 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: music
+      POSTGRES_PASSWORD: music
+      POSTGRES_DB: music
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./deploy/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U music -d music"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  user-service:
+    build:
+      context: .
+      args:
+        SERVICE: user-service
+    environment:
+      DATABASE_URL: postgres://music:music@postgres:5432/music?sslmode=disable
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+      GRPC_ADDR: ":50051"
+      JWT_SECRET: dev-secret-change-me
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "50051:50051"
+
+  catalog-service:
+    build:
+      context: .
+      args:
+        SERVICE: catalog-service
+    environment:
+      DATABASE_URL: postgres://music:music@postgres:5432/music?sslmode=disable
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+      GRPC_ADDR: ":50052"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "50052:50052"
+
+  subscription-service:
+    build:
+      context: .
+      args:
+        SERVICE: subscription-service
+    environment:
+      DATABASE_URL: postgres://music:music@postgres:5432/music?sslmode=disable
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+      GRPC_ADDR: ":50053"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "50053:50053"
+
+  gateway:
+    build:
+      context: .
+      args:
+        SERVICE: gateway
+    environment:
+      USER_SERVICE_ADDR: user-service:50051
+      CATALOG_SERVICE_ADDR: catalog-service:50052
+      SUBSCRIPTION_SERVICE_ADDR: subscription-service:50053
+      HTTP_ADDR: ":8080"
+      JWT_SECRET: dev-secret-change-me
+    depends_on:
+      - user-service
+      - catalog-service
+      - subscription-service
+    ports:
+      - "8080:8080"
